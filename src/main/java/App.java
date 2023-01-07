@@ -1,9 +1,6 @@
 import static spark.Spark.*;
 
-import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
 import spark.Request;
 import spark.Response;
 
@@ -14,7 +11,7 @@ import java.util.ArrayList;
 
 class App {
     private static Integer id = 1;
-    private static ArrayList<Car> cars = new ArrayList<>();
+    private static final ArrayList<Car> cars = new ArrayList<>();
 
     public static void main(String[] args) {
 //        staticFiles.location("/public");
@@ -55,7 +52,7 @@ class App {
     }
 
     static Boolean delete(Request req, Response res) {
-        String uuid = req.body().toString();
+        String uuid = req.body();
         cars.removeIf(car -> car.uuidEquals(uuid));
         return true;
     }
@@ -89,7 +86,7 @@ class App {
         res.type("application/octet-stream");
         res.header("Content-Disposition", "attachment; filename=" + req.queryParams("name") + ".pdf"); // nagłówek
 
-        OutputStream  outputStream = null;
+        OutputStream  outputStream;
         try {
             outputStream = res.raw().getOutputStream();
         } catch (IOException e) {

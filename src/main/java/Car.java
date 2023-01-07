@@ -24,10 +24,7 @@ public class Car {
     }
 
     public Boolean uuidEquals(String uuid) {
-        if (this.uuid.toString().equals(uuid)) {
-            return true;
-        }
-        return false;
+        return this.uuid.toString().equals(uuid);
     }
 
     public void edit(String model, Integer year) {
@@ -40,9 +37,7 @@ public class Car {
         String path = "invoices/" + this.uuid + ".pdf"; // lokalizacja zapisu
         try {
             PdfWriter.getInstance(document, new FileOutputStream(path));
-        } catch (DocumentException e) {
-            throw new RuntimeException(e);
-        } catch (FileNotFoundException e) {
+        } catch (DocumentException | FileNotFoundException e) {
             throw new RuntimeException(e);
         }
 
