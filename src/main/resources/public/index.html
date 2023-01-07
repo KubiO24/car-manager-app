@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <title>Strona Główna</title>
+
+    <style>
+        .bottomSection {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bottomSection div {
+            margin-top: 20px;
+        }
+
+        .checkboxList div {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px;
+        }
+
+        .button {
+            width: 80%;
+            height: 40px;
+            margin-top : 30px;
+            background-color: #ff9eee;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <a class="selected" href="index.html">Index</a>
+            <a href="cars.html">Edit / Update cars</a>
+            <a href="admin.html">Generate invoice</a>
+            <a href="cars.html">Search invoices</a>
+        </div>
+
+        <div class="bottomSection">
+            <div>
+                <p>model:</p>
+                <input type="text" name="model" id="model">
+            </div>
+
+            <div>
+                <p>rok:</p>
+                <select name="year" id="year">
+                    <option value="2000">2000</option>
+                    <option value="2010">2010</option>
+                    <option value="2020">2020</option>
+                </select>
+            </div>
+
+            <div>
+                <p>poduszki powietrzne:</p>
+                <div class="checkboxList">
+                    <div>
+                        <label for="airbag1">kierowca</label>
+                        <input type="checkbox" name="airbag" id="airbag1">
+                    </div>
+                    <div>
+                        <label for="airbag2">pasażer</label>
+                        <input type="checkbox" name="airbag" id="airbag2">
+                    </div>
+                    <div>
+                        <label for="airbag3">tylna kanapa</label>
+                        <input type="checkbox" name="airbag" id="airbag3">
+                    </div>
+                    <div>
+                        <label for="airbag4">boczne z tyłu</label>
+                        <input type="checkbox" name="airbag" id="airbag4">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <p>kolor:</p>
+                <input type="color" name="color" id="color">
+            </div>
+
+            <button id="add" class="button" onclick="add()">dodaj</button>
+        </div>
+
+    </div>
+    <script>
+        add = async () => {
+            if(document.querySelector("#model").value == "") document.querySelector("#model").value = "test";
+
+            let json = await fetchPostAsync()
+            alert(JSON.stringify(json, null, 3));
+        }
+
+        fetchPostAsync = async () => {
+            let model = document.querySelector("#model").value;
+            let year = document.querySelector("#year").value;
+            let airbags = [
+                {description: "kierowca", value: document.querySelector("#airbag1").checked},
+                {description: "pasażer", value: document.querySelector("#airbag2").checked},
+                {description: "kanapa", value: document.querySelector("#airbag3").checked},
+                {description: "boczne", value: document.querySelector("#airbag4").checked}
+            ]
+            let color = document.querySelector("#color").value;
+
+            const data = JSON.stringify({
+                model: model,
+                year: year,
+                airbags: airbags,
+                color: color
+            })
+
+            const options = {
+                method: "POST",
+                body: data,
+            };
+
+            let response = await fetch("/add", options)
+
+            if (!response.ok)
+                return response.status
+            else
+                return await response.json() // response.json
+
+        }
+    </script>
+</body>
+</html>

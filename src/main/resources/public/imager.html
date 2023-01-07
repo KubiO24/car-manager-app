@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Images</title>
+
+    <style>
+        #imageDiv {
+            width: auto;
+            height: 1000px;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="imageDiv"></div>
+
+    <script>
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        const name = params.name;
+
+        const div = document.querySelector("#imageDiv")
+        div.style.backgroundImage = `url("/image?name=${name}&rand=${Math.random()}")`
+
+        action = async (action) => {
+            const options = {
+                method: "POST",
+                body: name,
+            };
+
+            let response = await fetch("/imageOperation", options)
+
+            if (!response.ok)
+                return response.status
+            else
+                return await response.json() // response.json
+        }
+
+        action("none")
+            .then((data) => {
+                console.log(data)
+                div.style.width = "width_z_serwera"
+                div.style.width = "height_z_serwera"
+            });
+    </script>
+</body>
+</html>

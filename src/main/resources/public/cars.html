@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
+    <title>Samochody</title>
+    <style>
+        .button {
+            width: 75px;
+            height: 30px;
+            color: white;
+        }
+
+        .buttonUpdate {
+            background-color: #57d8ff;
+        }
+
+        .buttonDelete {
+            background-color: #ff5d62;
+        }
+
+        #popupBackground {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #popup {
+            width: 320px;
+            height: 170px;
+            background-color: whitesmoke;
+            border-radius: 25px;
+            padding: 15px 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        #popup div {
+            width: 100%;
+            display: inline-flex;
+            justify-content: space-between;
+        }
+
+        #popupUpdate {
+            background-color: #56e059;
+        }
+
+        #popupCancel {
+            background-color: #ff5d62;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <a href="/">Index</a>
+        <a class="selected" href="cars.html">Edit / Update cars</a>
+        <a href="admin.html">Generate invoice</a>
+        <a href="cars.html">Search invoices</a>
+    </div>
+
+    <div class="bottomSection">
+        <table id="carTable">
+
+        </table>
+    </div>
+
+    <div id="popupBackground">
+        <div id="popup">
+            <div>
+                <input type="text" name="model" id="model">
+
+                <select name="year" id="year">
+                    <option value="2000">2000</option>
+                    <option value="2010">2010</option>
+                    <option value="2020">2020</option>
+                </select>
+            </div>
+
+            <div>
+                <button id="popupUpdate" class="button">update</button>
+                <button id="popupCancel" class="button" onClick="popupCancel()">cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <script>
+        let cars;
+
+        updateData = () => {
+            fetch('json')
+                .then((response) => response.json())
+                .then((data) => {
+                    cars = data;
+                    const table = document.querySelector("#carTable");
+                    table.innerHTML = "";
+
+                    for (const car of data) {
+                        const row = document.createElement("tr");
+                        for (const carKey of Object.keys(car)) {
+                            const cell = document.createElement("td");
+
+                            if(carKey === 'airbags') {
+                                for(const airbag of car[carKey]) {
+                                    const cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
+                                    cell.appendChild(cellText);
+                                    cell.appendChild(document.createElement("br"));
+                                }
+                            }else if(carKey === 'color') {
+                                cell.style.background = car[carKey];
+                            }else {
+                                const cellText = document.createTextNode(car[carKey]);
+                                cell.appendChild(cellText);
+                            }
+
+                            row.appendChild(cell);
+                        }
+
+                        const updateCell = document.createElement("td");
+
+                        const updateButton = document.createElement("button");
+                        updateButton.innerText = "update car";
+                        updateButton.classList.add("button", "buttonUpdate");
+                        updateButton.setAttribute('data-uuid', car['uuid']);
+                        updateButton.onclick = updateCar;
+                        updateCell.appendChild(updateButton);
+                        row.appendChild(updateCell);
+
+                        const deleteCell = document.createElement("td");
+                        const deleteButton = document.createElement("button");
+                        deleteButton.innerText = "delete car";
+                        deleteButton.classList.add("button", "buttonDelete");
+                        deleteButton.setAttribute('data-uuid', car['uuid']);
+                        deleteButton.onclick = deleteCar;
+                        deleteCell.appendChild(deleteButton);
+                        row.appendChild(deleteCell);
+
+                        table.appendChild(row);
+                    }
+                });
+        }
+
+        deleteCar = async (e) => {
+            const uuid = e.target.getAttribute('data-uuid');
+
+            let result = await fetchDeleteAsync(uuid);
+            if(result) {
+              e.target.parentElement.parentElement.remove();
+            }
+        }
+
+        fetchDeleteAsync = async (uuid) => {
+        const options = {
+          method: "POST",
+          body: uuid,
+        };
+
+        let response = await fetch("/delete", options)
+
+        if (!response.ok)
+          return response.status
+        else
+          return await response.json() // response.json
+
+        }
+
+        updateCar = (e) => {
+            const uuid = e.target.getAttribute('data-uuid');
+            const popupUpdateButton = document.querySelector("#popupUpdate");
+            popupUpdateButton.setAttribute('data-uuid', uuid);
+            popupUpdateButton.onclick = popupUpdate;
+            document.querySelector('#popupBackground').style.display = "flex";
+            for(const car of cars) {
+                if(car['uuid'] == uuid) {
+                    document.querySelector('#model').value = car['model'];
+                    document.querySelector('#year').value = car['year'];
+                }
+            }
+        }
+
+        popupUpdate = async (e) => {
+            const uuid = e.target.getAttribute('data-uuid');
+
+            let result = await fetchUpdateAsync(uuid);
+            if(result) {
+                document.querySelector('#popupBackground').style.display = "none";
+                updateData();
+            }
+        }
+
+        fetchUpdateAsync = async (uuid) => {
+          let model = document.querySelector("#model").value;
+          if(model == "") return false;
+          let year = document.querySelector("#year").value;
+
+          const data = JSON.stringify({
+              uuid: uuid,
+              model: model,
+              year: year,
+          })
+
+          const options = {
+              method: "POST",
+              body: data,
+          };
+
+          let response = await fetch("/update", options)
+
+          if (!response.ok)
+              return response.status
+          else
+              return await response.json() // response.json
+        }
+
+        popupCancel = (e) => {
+            document.querySelector('#popupBackground').style.display = "none";
+        }
+
+        updateData();
+    </script>
+</body>
+</html>
