@@ -16,11 +16,21 @@
         }
 
         .buttonDownload {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 90px;
             background-color: #56e059;
+            text-decoration: none;
+            text-shadow: none;
         }
 
-        .buttonDownload:disabled {
+        .buttonDownload:hover {
+            text-decoration: none;
+            color: white;
+        }
+
+        .disabled {
             cursor: not-allowed;
             background-color: #9f9f9f;
         }
@@ -43,13 +53,10 @@
 </div>
 
   <script>
-        let cars;
-
         updateData = () => {
             fetch('json')
                 .then((response) => response.json())
                 .then((data) => {
-                    cars = data;
                     const table = document.querySelector("#carTable");
                     table.innerHTML = "";
 
@@ -85,11 +92,16 @@
                         row.appendChild(generateCell);
 
                         const downloadCell = document.createElement("td");
-                        const downloadButton = document.createElement("button");
+                        const downloadButton = document.createElement("a");
                         downloadButton.innerText = "Download";
                         downloadButton.classList.add("button", "buttonDownload");
                         downloadButton.setAttribute('data-uuid', car['uuid']);
-                        downloadButton.disabled = true;
+                        if(!car['invoiceGenerated']) {
+                            downloadButton.classList.add("disabled");
+                            downloadButton.setAttribute('data-disabled', true);
+                        }else {
+                            downloadButton.href = "/invoices?name=" + car['uuid'];
+                        }
                         downloadButton.onclick = downloadInvoice;
                         downloadCell.appendChild(downloadButton);
                         row.appendChild(downloadCell);
@@ -100,56 +112,38 @@
         }
 
 
-        generateInvoice = (e) => {
-            const uuid = e.target.getAttribute('data-uuid');
-            const popupUpdateButton = document.querySelector("#popupUpdate");
-            popupUpdateButton.setAttribute('data-uuid', uuid);
-            popupUpdateButton.onclick = popupUpdate;
-            document.querySelector('#popupBackground').style.display = "flex";
-            for(const car of cars) {
-                if(car['uuid'] == uuid) {
-                    document.querySelector('#model').value = car['model'];
-                    document.querySelector('#year').value = car['year'];
-                }
-            }
-        }
-
-        popupUpdate = async (e) => {
+        generateInvoice = async (e) => {
             const uuid = e.target.getAttribute('data-uuid');
 
-            let result = await fetchUpdateAsync(uuid);
+            let result = await fetchGenerateInvoice(uuid);
             if(result) {
-                document.querySelector('#popupBackground').style.display = "none";
                 updateData();
             }
         }
 
-        fetchUpdateAsync = async (uuid) => {
-          let model = document.querySelector("#model").value;
-          if(model == "") return false;
-          let year = document.querySelector("#year").value;
 
-          const data = JSON.stringify({
-              uuid: uuid,
-              model: model,
-              year: year,
-          })
+        fetchGenerateInvoice = async (uuid) => {
+            const options = {
+                method: "POST",
+                body: uuid,
+            };
 
-          const options = {
-              method: "POST",
-              body: data,
-          };
+            let response = await fetch("/invoice", options)
 
-          let response = await fetch("/update", options)
-
-          if (!response.ok)
-              return response.status
-          else
-              return await response.json() // response.json
+            if (!response.ok)
+                return response.status
+            else
+                return await response.json() // response.json
         }
-         downloadInvoice = () => {
-            console.log("donwnload");
-         }
+
+        downloadInvoice = (e) => {
+            const disabled = e.target.getAttribute('data-disabled');
+            if(disabled)
+                return;
+
+            const uuid = e.target.getAttribute('data-uuid');
+            console.log("download");
+        }
 
         updateData();
     </script>

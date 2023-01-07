@@ -2,16 +2,15 @@ import static spark.Spark.*;
 
 import com.fasterxml.uuid.Generators;
 import com.google.gson.Gson;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
 import spark.Request;
 import spark.Response;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.UUID;
 
 class App {
     private static Integer id = 1;
@@ -78,10 +77,29 @@ class App {
     }
 
     static Boolean invoice(Request req, Response res) {
+        cars.forEach((car) -> {
+            if(car.uuidEquals(req.body())) {
+                car.generateInvoice();
+            }
+        });
         return true;
     }
 
     static Boolean invoices(Request req, Response res) {
+        res.type("application/octet-stream");
+        res.header("Content-Disposition", "attachment; filename=" + req.queryParams("name") + ".pdf"); // nagłówek
+
+        OutputStream  outputStream = null;
+        try {
+            outputStream = res.raw().getOutputStream();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            outputStream.write(Files.readAllBytes(Path.of("invoices/" + req.queryParams("name") + ".pdf"))); // response pliku do przeglądarki
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return true;
     }
 
@@ -90,7 +108,7 @@ class App {
 
         OutputStream outputStream = res.raw().getOutputStream();
 
-        outputStream.write(Files.readAllBytes(Path.of("images/" + req.queryParams("name"))));
+        outputStream.write(Files.readAllBytes(Path.of("images/" + req.queryParams("id"))));
         outputStream.flush();
         System.out.println(req.queryParams("name"));
         return true;
