@@ -5,6 +5,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 
 public class Car {
@@ -15,6 +16,33 @@ public class Car {
     private ArrayList<Airbag> airbags = new ArrayList<>();
     private String color;
     private Boolean invoiceGenerated;
+
+
+    public Car(Integer id) {
+        this.id = id;
+        this.uuid = Generators.randomBasedGenerator().generate();
+
+        String[] models = {"BMW", "Fiat", "Mercedes", "Peugot"};
+        Random random = new Random();
+        int index = random.nextInt(models.length);
+        this.model = models[index];
+
+        int[] years = {2000, 2010, 2020};
+        index = random.nextInt(years.length);
+        this.year = years[index];
+
+        this.airbags.add(new Airbag("kierowca"));
+        this.airbags.add(new Airbag("pasażer"));
+        this.airbags.add(new Airbag("kanapa"));
+        this.airbags.add(new Airbag("boczne"));
+
+        // create a big random number - maximum is ffffff (hex) = 16777215 (dez)
+        int nextInt = random.nextInt(0xffffff + 1);
+        // format it as hexadecimal string (with hashtag and leading zeros)
+        this.color = String.format("#%06x", nextInt);
+
+        this.invoiceGenerated = false;
+    }
 
 
     public void generateId(Integer id) {
@@ -69,6 +97,12 @@ public class Car {
 }
 
 class Airbag {
+    public Airbag(String description) {
+        this.description = description;
+        Random random = new Random();
+        this.value = random.nextBoolean();
+    }
+
     String description;
     boolean value;
 }

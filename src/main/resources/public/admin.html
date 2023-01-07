@@ -8,6 +8,16 @@
         .button {
             height: 30px;
             color: white;
+            user-select: none;
+        }
+
+        .generateCarsButton {
+            width: 250px;
+            height: 40px;
+            font-size: 1rem;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            background-color: #ff9eee;
         }
 
         .buttonGenerate {
@@ -45,6 +55,8 @@
         <a href="cars.html">Search invoices</a>
     </div>
 
+    <button class="button generateCarsButton" onClick="generateCars()">Generate random cars database</button>
+
     <div class="bottomSection">
         <table id="carTable">
 
@@ -73,7 +85,10 @@
                                 }
                             }else if(carKey === 'color') {
                                 cell.style.background = car[carKey];
-                            }else {
+                            }else if(carKey === "invoiceGenerated") {
+                                const cellText = document.createTextNode("invoice generated: " + car[carKey]);
+                                cell.appendChild(cellText);
+                            } else {
                                 const cellText = document.createTextNode(car[carKey]);
                                 cell.appendChild(cellText);
                             }
@@ -111,6 +126,24 @@
                 });
         }
 
+        generateCars = async () => {
+            if(await fetchGenerateCars()) {
+                updateData();
+            }
+        }
+
+        fetchGenerateCars = async (uuid) => {
+            const options = {
+                method: "POST",
+            };
+
+            let response = await fetch("/generate", options)
+
+            if (!response.ok)
+                return response.status
+            else
+                return await response.json() // response.json
+        }
 
         generateInvoice = async (e) => {
             const uuid = e.target.getAttribute('data-uuid');

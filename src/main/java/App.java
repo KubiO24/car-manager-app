@@ -70,6 +70,11 @@ class App {
     }
 
     static Boolean generate(Request req, Response res) {
+        for (int i = 0; i < 5; i++) {
+            Car car = new Car(id);
+            id++;
+            cars.add(car);
+        }
         return true;
     }
 
