@@ -74,56 +74,61 @@
 
                     for (const car of data) {
                         const row = document.createElement("tr");
-                        for (const carKey of Object.keys(car)) {
-                            const cell = document.createElement("td");
+                        let cell, cellText;
 
-                            if(carKey === 'airbags') {
-                                for(const airbag of car[carKey]) {
-                                    const cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
-                                    cell.appendChild(cellText);
-                                    cell.appendChild(document.createElement("br"));
-                                }
-                            }else if(carKey === 'color') {
-                                cell.style.background = car[carKey];
-                            }else if(carKey === "invoiceGenerated") {
-                                const cellText = document.createTextNode("invoice generated: " + car[carKey]);
-                                cell.appendChild(cellText);
-                            } else {
-                                const cellText = document.createTextNode(car[carKey]);
-                                cell.appendChild(cellText);
-                            }
+                        createBasicCell(car["id"], row);
+                        createBasicCell(car["uuid"], row);
+                        createBasicCell(car["model"], row);
+                        createBasicCell(car["year"], row);
 
-                            row.appendChild(cell);
+                        cell = document.createElement("td");
+                        for(const airbag of car['airbags']) {
+                            cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
+                            cell.appendChild(cellText);
+                            cell.appendChild(document.createElement("br"));
                         }
+                        row.appendChild(cell);
 
-                        const generateCell = document.createElement("td");
+                        cell = document.createElement("td");
+                        cell.style.background = car['color'];
+                        row.appendChild(cell);
 
+                        createBasicCell("invoice generated: " + car["invoiceGenerated"], row);
+
+                        cell = document.createElement("td");
                         const generateButton = document.createElement("button");
                         generateButton.innerText = "Generate VAT invoice";
                         generateButton.classList.add("button", "buttonGenerate");
                         generateButton.setAttribute('data-uuid', car['uuid']);
                         generateButton.onclick = generateInvoice;
-                        generateCell.appendChild(generateButton);
-                        row.appendChild(generateCell);
+                        cell.appendChild(generateButton);
+                        row.appendChild(cell);
 
-                        const downloadCell = document.createElement("td");
+                        cell = document.createElement("td");
                         const downloadButton = document.createElement("a");
                         downloadButton.innerText = "Download";
                         downloadButton.classList.add("button", "buttonDownload");
                         downloadButton.setAttribute('data-uuid', car['uuid']);
                         if(!car['invoiceGenerated']) {
                             downloadButton.classList.add("disabled");
-                            downloadButton.setAttribute('data-disabled', true);
+                            downloadButton.setAttribute('data-disabled', "true");
                         }else {
                             downloadButton.href = "/invoices?name=" + car['uuid'];
                         }
                         downloadButton.onclick = downloadInvoice;
-                        downloadCell.appendChild(downloadButton);
-                        row.appendChild(downloadCell);
+                        cell.appendChild(downloadButton);
+                        row.appendChild(cell);
 
                         table.appendChild(row);
                     }
                 });
+        }
+
+        createBasicCell = (text, row) => {
+            const cell = document.createElement("td");
+            const cellText = document.createTextNode(text);
+            cell.appendChild(cellText);
+            row.appendChild(cell);
         }
 
         generateCars = async () => {

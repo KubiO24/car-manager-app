@@ -5,7 +5,9 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Car {
     private Integer id;
@@ -14,21 +16,23 @@ public class Car {
     private Integer year;
     private ArrayList<Airbag> airbags = new ArrayList<>();
     private String color;
+    private String dateOfPurchase;
+    private Integer price;
+    private Integer tax;
     private Boolean invoiceGenerated;
 
 
     public Car(Integer id) {
+        Random random = new Random();
+
         this.id = id;
         this.uuid = Generators.randomBasedGenerator().generate();
 
         String[] models = {"BMW", "Fiat", "Mercedes", "Peugot"};
-        Random random = new Random();
-        int index = random.nextInt(models.length);
-        this.model = models[index];
+        this.model = models[random.nextInt(models.length)];
 
         int[] years = {2000, 2010, 2020};
-        index = random.nextInt(years.length);
-        this.year = years[index];
+        this.year = years[random.nextInt(years.length)];
 
         this.airbags.add(new Airbag("kierowca"));
         this.airbags.add(new Airbag("pasażer"));
@@ -36,8 +40,17 @@ public class Car {
         this.airbags.add(new Airbag("boczne"));
 
         String[] colors = {"#000000", "#808080", "#FF0000", "#008000", "#FFA500", "#0000FF"};
-        index = random.nextInt(colors.length);
-        this.color = colors[index];
+        this.color = colors[random.nextInt(colors.length)];
+
+        int day = ThreadLocalRandom.current().nextInt(1, 31 + 1);
+        int month = ThreadLocalRandom.current().nextInt(1, 12 + 1);
+        int year = ThreadLocalRandom.current().nextInt(2000, 2022 + 1);
+        this.dateOfPurchase = day + "/" + month + "/" + year;
+
+        this.price = ThreadLocalRandom.current().nextInt(10000, 100000);
+
+        Integer[] tax = {0, 7, 22};
+        this.tax = tax[random.nextInt(tax.length)];
 
         this.invoiceGenerated = false;
     }
@@ -146,6 +159,9 @@ public class Car {
                 ", year=" + year +
                 ", airbags=" + airbags +
                 ", color='" + color + '\'' +
+                ", dateOfPurchase=" + dateOfPurchase +
+                ", price=" + price +
+                ", tax=" + tax +
                 ", invoiceGenerated=" + invoiceGenerated +
                 '}';
     }

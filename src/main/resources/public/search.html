@@ -19,31 +19,6 @@
             margin-bottom: 10px;
             background-color: #ff9eee;
         }
-
-        .buttonGenerate {
-            width: 150px;
-            background-color: #57d8ff;
-        }
-
-        .buttonDownload {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 90px;
-            background-color: #56e059;
-            text-decoration: none;
-            text-shadow: none;
-        }
-
-        .buttonDownload:hover {
-            text-decoration: none;
-            color: white;
-        }
-
-        .disabled {
-            cursor: not-allowed;
-            background-color: #9f9f9f;
-        }
     </style>
 </head>
 <body>
@@ -74,56 +49,44 @@
 
                     for (const car of data) {
                         const row = document.createElement("tr");
-                        for (const carKey of Object.keys(car)) {
-                            const cell = document.createElement("td");
+                        let cell, cellText;
 
-                            if(carKey === 'airbags') {
-                                for(const airbag of car[carKey]) {
-                                    const cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
-                                    cell.appendChild(cellText);
-                                    cell.appendChild(document.createElement("br"));
-                                }
-                            }else if(carKey === 'color') {
-                                cell.style.background = car[carKey];
-                            }else if(carKey === "invoiceGenerated") {
-                                const cellText = document.createTextNode("invoice generated: " + car[carKey]);
-                                cell.appendChild(cellText);
-                            } else {
-                                const cellText = document.createTextNode(car[carKey]);
-                                cell.appendChild(cellText);
-                            }
+                        createBasicCell(car["id"], row);
 
-                            row.appendChild(cell);
+                        createBasicCell(car["model"], row);
+
+                        createBasicCell(car["year"], row);
+
+                        cell = document.createElement("td");
+                        for(const airbag of car['airbags']) {
+                            cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
+                            cell.appendChild(cellText);
+                            cell.appendChild(document.createElement("br"));
                         }
+                        row.appendChild(cell);
 
-                        const generateCell = document.createElement("td");
+                        cell = document.createElement("td");
+                        cell.style.background = car['color'];
+                        row.appendChild(cell);
 
-                        const generateButton = document.createElement("button");
-                        generateButton.innerText = "Generate VAT invoice";
-                        generateButton.classList.add("button", "buttonGenerate");
-                        generateButton.setAttribute('data-uuid', car['uuid']);
-                        generateButton.onclick = generateInvoice;
-                        generateCell.appendChild(generateButton);
-                        row.appendChild(generateCell);
+                        /////////////////////////////////////////// PHOTO //////////////////////////////////////////////
 
-                        const downloadCell = document.createElement("td");
-                        const downloadButton = document.createElement("a");
-                        downloadButton.innerText = "Download";
-                        downloadButton.classList.add("button", "buttonDownload");
-                        downloadButton.setAttribute('data-uuid', car['uuid']);
-                        if(!car['invoiceGenerated']) {
-                            downloadButton.classList.add("disabled");
-                            downloadButton.setAttribute('data-disabled', true);
-                        }else {
-                            downloadButton.href = "/invoices?name=" + car['uuid'];
-                        }
-                        downloadButton.onclick = downloadInvoice;
-                        downloadCell.appendChild(downloadButton);
-                        row.appendChild(downloadCell);
+                        createBasicCell(car["dateOfPurchase"], row);
+
+                        createBasicCell("$" + car["price"], row);
+
+                        createBasicCell(car["tax"] + "%", row);
 
                         table.appendChild(row);
                     }
                 });
+        }
+
+        createBasicCell = (text, row) => {
+            const cell = document.createElement("td");
+            const cellText = document.createTextNode(text);
+            cell.appendChild(cellText);
+            row.appendChild(cell);
         }
 
         generateCars = async () => {
@@ -143,39 +106,6 @@
                 return response.status
             else
                 return await response.json() // response.json
-        }
-
-        generateInvoice = async (e) => {
-            const uuid = e.target.getAttribute('data-uuid');
-
-            let result = await fetchGenerateInvoice(uuid);
-            if(result) {
-                updateData();
-            }
-        }
-
-
-        fetchGenerateInvoice = async (uuid) => {
-            const options = {
-                method: "POST",
-                body: uuid,
-            };
-
-            let response = await fetch("/invoice", options)
-
-            if (!response.ok)
-                return response.status
-            else
-                return await response.json() // response.json
-        }
-
-        downloadInvoice = (e) => {
-            const disabled = e.target.getAttribute('data-disabled');
-            if(disabled)
-                return;
-
-            const uuid = e.target.getAttribute('data-uuid');
-            console.log("download");
         }
 
         updateData();
