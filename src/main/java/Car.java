@@ -16,7 +16,7 @@ public class Car {
     private Integer year;
     private ArrayList<Airbag> airbags = new ArrayList<>();
     private String color;
-    private String dateOfPurchase;
+    private CustomDate dateOfPurchase;
     private Integer price;
     private Integer tax;
     private Boolean invoiceGenerated;
@@ -45,7 +45,7 @@ public class Car {
         int day = ThreadLocalRandom.current().nextInt(1, 31 + 1);
         int month = ThreadLocalRandom.current().nextInt(1, 12 + 1);
         int year = ThreadLocalRandom.current().nextInt(2000, 2022 + 1);
-        this.dateOfPurchase = day + "/" + month + "/" + year;
+        this.dateOfPurchase = new CustomDate(day, month, year);
 
         this.price = ThreadLocalRandom.current().nextInt(10000, 100000);
 
@@ -137,7 +137,7 @@ public class Car {
             document.add(airbag4);
             String[] models = {"BMW", "Fiat", "Mercedes", "Peugot"};
             if(Arrays.asList(models).contains(this.model)) {
-                Image img = Image.getInstance("car brands images/" + this.model + ".png");
+                Image img = Image.getInstance("src/main/resources/public/car brands images/" + this.model + ".png");
                 float scaler = ((document.getPageSize().getWidth() - document.leftMargin() - document.rightMargin()) / img.getWidth()) * 100;
                 img.scalePercent(scaler);
                 document.add(img);

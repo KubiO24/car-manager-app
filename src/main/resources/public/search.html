@@ -12,8 +12,8 @@
         }
 
         .invoicesMenu {
-            width: 30%;
-            margin-top: 80px;
+            width: 20%;
+            margin-top: 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -49,6 +49,8 @@
         }
 
         .tableContainer {
+            width: 80%;
+            padding-right: 50px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -64,8 +66,9 @@
             user-select: none;
         }
 
-        table {
-            margin: 0;
+        table img {
+            width: 100px;
+            margin: auto;
         }
     </style>
 </head>
@@ -118,6 +121,9 @@
             fetch('json')
                 .then((response) => response.json())
                 .then((data) => {
+                    if(data != "") {
+                        document.querySelector("#carTable").style.width = "100%";
+                    }
                     const table = document.querySelector("#carTable");
                     table.innerHTML = "";
 
@@ -143,9 +149,15 @@
                         cell.style.background = car['color'];
                         row.appendChild(cell);
 
-                        /////////////////////////////////////////// PHOTO //////////////////////////////////////////////
+                        cell = document.createElement("td");
+                        const carImg = document.createElement("img");
+                        carImg.src = "car brands images/" + car["model"] + ".png";
+                        cell.style.padding = "0";
+                        cell.appendChild(carImg);
+                        row.appendChild(cell);
 
-                        createBasicCell(car["dateOfPurchase"], row);
+                        const date = car["dateOfPurchase"]["day"] + "/"  + car["dateOfPurchase"]["month"] + "/" + car["dateOfPurchase"]["year"]
+                        createBasicCell(date, row);
 
                         createBasicCell("$" + car["price"], row);
 
@@ -153,6 +165,14 @@
 
                         table.appendChild(row);
                     }
+                });
+        }
+
+        updateInvoices = () => {
+            fetch('json')
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data)
                 });
         }
 
