@@ -5,19 +5,67 @@
     <link rel="stylesheet" href="styles.css">
     <title>Collective Invoices</title>
     <style>
-        .button {
+        .bottomSection {
+            width: 100%;
+            display: flex;
+            margin-top: 50px;
+        }
+
+        .invoicesMenu {
+            width: 30%;
+            margin-top: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .invoiceOption {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 80px;
+        }
+
+        .invoicesMenu div select {
+            margin-bottom: 10px;
+        }
+
+        .invoiceOption div {
+            display: inline;
+        }
+
+        .invoiceOption input {
+            margin-bottom: 10px;
+            width: 70px;
+        }
+
+        .generateInvoiceButton {
+            width: 150px;
             height: 30px;
+            background-color: #57d8ff;
             color: white;
+            font-size: .8rem;
             user-select: none;
+        }
+
+        .tableContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .generateCarsButton {
             width: 250px;
             height: 40px;
-            font-size: 1rem;
-            margin-top: 30px;
-            margin-bottom: 10px;
+            margin-bottom: 30px;
             background-color: #ff9eee;
+            color: white;
+            font-size: 1rem;
+            user-select: none;
+        }
+
+        table {
+            margin: 0;
         }
     </style>
 </head>
@@ -30,12 +78,38 @@
         <a class="selected" href="search.html">Search Invoices</a>
     </div>
 
-    <button class="button generateCarsButton" onClick="generateCars()">Generate random cars database</button>
-
     <div class="bottomSection">
-        <table id="carTable">
+        <div class="invoicesMenu">
+            <div class="invoiceOption">
+                <button class="button generateInvoiceButton">Invoice for all cars</button>
+            </div>
 
-        </table>
+            <div class="invoiceOption">
+                <select name="year" id="year">
+                    <option value="2000">2000</option>
+                    <option value="2010">2010</option>
+                    <option value="2020">2020</option>
+                </select>
+                <button class="button generateInvoiceButton">Invoice for cars by year</button>
+            </div>
+
+            <div class="invoiceOption">
+                <div>
+                    <input type="number" id="priceFrom" min="1" max="99999">
+                    -
+                    <input type="number" id="priceTo" min="1" max="99999">
+                </div>
+                <button class="button generateInvoiceButton">Invoice for cars by price</button>
+            </div>
+        </div>
+
+        <div class="tableContainer">
+            <button class="button generateCarsButton" onClick="generateCars()">Generate random cars database</button>
+
+            <table id="carTable">
+
+            </table>
+        </div>
     </div>
 </div>
 
