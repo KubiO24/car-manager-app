@@ -5,7 +5,6 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -148,6 +147,18 @@ public class Car {
 
         document.close();
         this.invoiceGenerated = true;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public Integer getTax() {
+        return tax;
     }
 
     @Override

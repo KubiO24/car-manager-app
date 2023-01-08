@@ -26,12 +26,12 @@
             margin-bottom: 80px;
         }
 
-        .invoicesMenu div select {
-            margin-bottom: 10px;
-        }
-
         .invoiceOption div {
             display: inline;
+        }
+
+        .invoiceOption select {
+            margin-bottom: 10px;
         }
 
         .invoiceOption input {
@@ -39,12 +39,17 @@
             width: 70px;
         }
 
+        .invoiceList {
+            display: flex !important;
+            flex-direction: column;
+        }
+
         .generateInvoiceButton {
-            width: 150px;
+            width: 180px;
             height: 30px;
             background-color: #57d8ff;
             color: white;
-            font-size: .8rem;
+            font-size: .9rem;
             user-select: none;
         }
 
@@ -84,7 +89,8 @@
     <div class="bottomSection">
         <div class="invoicesMenu">
             <div class="invoiceOption">
-                <button class="button generateInvoiceButton">Invoice for all cars</button>
+                <button class="button generateInvoiceButton" onclick="generateInvoice()">Invoice for all cars</button>
+                <div class="invoiceList" id="invoices"></div>
             </div>
 
             <div class="invoiceOption">
@@ -93,16 +99,18 @@
                     <option value="2010">2010</option>
                     <option value="2020">2020</option>
                 </select>
-                <button class="button generateInvoiceButton">Invoice for cars by year</button>
+                <button class="button generateInvoiceButton" onclick="generateInvoiceYear()">Invoice for cars by year</button>
+                <div class="invoiceList" id="invoicesYear"></div>
             </div>
 
             <div class="invoiceOption">
                 <div>
-                    <input type="number" id="priceFrom" min="1" max="99999">
+                    <input type="number" id="priceFrom" min="0" max="100000">
                     -
-                    <input type="number" id="priceTo" min="1" max="99999">
+                    <input type="number" id="priceTo" min="0" max="100000">
                 </div>
-                <button class="button generateInvoiceButton">Invoice for cars by price</button>
+                <button class="button generateInvoiceButton" onclick="generateInvoicePrice()">Invoice for cars by price</button>
+                <div class="invoiceList" id="invoicesPrice"></div>
             </div>
         </div>
 
@@ -165,15 +173,97 @@
 
                         table.appendChild(row);
                     }
+                    updateInvoices();
                 });
         }
 
         updateInvoices = () => {
-            fetch('json')
+            document.querySelector("#invoices").innerHTML = "";
+            document.querySelector("#invoicesYear").innerHTML = "";
+            document.querySelector("#invoicesPrice").innerHTML = "";
+
+            fetch('invoicesJson')
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data)
+                    for(const invoice of data) {
+                        const downloadButton = document.createElement("a");
+                        downloadButton.innerText = "Download";
+                        downloadButton.href = "/invoices?name=" + invoice["name"];
+                        downloadButton.title = invoice["title"] + " -> " + invoice["date"];
+                        document.querySelector("#invoices").appendChild(downloadButton);
+
+                    }
                 });
+
+            fetch('invoicesYearJson')
+                .then((response) => response.json())
+                .then((data) => {
+                    for(const invoice of data) {
+                        const downloadButton = document.createElement("a");
+                        downloadButton.innerText = "Download";
+                        downloadButton.href = "/invoices?name=" + invoice["name"];
+                        downloadButton.title = invoice["title"] + " -> " + invoice["date"];
+                        document.querySelector("#invoicesYear").appendChild(downloadButton);
+
+                    }
+                });
+
+            fetch('invoicesPriceJson')
+                .then((response) => response.json())
+                .then((data) => {
+                    for(const invoice of data) {
+                        const downloadButton = document.createElement("a");
+                        downloadButton.innerText = "Download";
+                        downloadButton.href = "/invoices?name=" + invoice["name"];
+                        downloadButton.title = invoice["title"] + " -> " + invoice["date"];
+                        document.querySelector("#invoicesPrice").appendChild(downloadButton);
+                    }
+                });
+        }
+
+        generateInvoice = async() => {
+            const body = "";
+            if(await fetchGenerateInvoice(body, "generateInvoice")) {
+                alert("Invoice for all cars generated");
+                updateInvoices();
+            }
+        }
+
+        generateInvoiceYear = async() => {
+            const body = document.querySelector("#year").value
+            if(await fetchGenerateInvoice(body, "generateInvoiceYear")) {
+                alert("Invoice for cars from " + body + " generated");
+                updateInvoices();
+            }
+        }
+
+        generateInvoicePrice = async() => {
+            const body = {
+                min: document.querySelector("#priceFrom").value,
+                max: document.querySelector("#priceTo").value,
+            };
+
+            if(body.min === "" || body.max === "") return;
+            if(body.min < 0 || body.max < 0) return;
+            if(body.min > body.max) return;
+
+
+            if(await fetchGenerateInvoice(body, "generateInvoicePrice")) {
+                alert("Invoice for cars in price range $" + body.min + " - $" + body.max + " generated");
+                updateInvoices();
+            }
+        }
+
+        fetchGenerateInvoice = async (body, type) => {
+            const options = {
+                method: "POST",
+                body: JSON.stringify(body),
+            };
+            let response = await fetch(type, options)
+            if (!response.ok)
+                return response.status
+            else
+                return await response.json() // response.json
         }
 
         createBasicCell = (text, row) => {
@@ -193,9 +283,7 @@
             const options = {
                 method: "POST",
             };
-
             let response = await fetch("/generate", options)
-
             if (!response.ok)
                 return response.status
             else

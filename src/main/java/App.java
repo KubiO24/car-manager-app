@@ -12,6 +12,9 @@ import java.util.ArrayList;
 class App {
     private static Integer id = 1;
     private static final ArrayList<Car> cars = new ArrayList<>();
+    private static final ArrayList<Invoice> invoices = new ArrayList<>();
+    private static final ArrayList<Invoice> invoices_year = new ArrayList<>();
+    private static final ArrayList<Invoice> invoices_price = new ArrayList<>();
 
     public static void main(String[] args) {
 //        staticFiles.location("/public");
@@ -29,6 +32,13 @@ class App {
         post("/generate", (req, res) -> generate(req, res)); // generowanie bazy aut
         post("/invoice", (req, res) -> invoice(req, res)); // generowanie faktury
         get("/invoices", (req, res) -> invoices(req, res)); // pobranie faktury
+
+        post("/generateInvoice", (req, res) -> generateInvoice(req, res));
+        post("/generateInvoiceYear", (req, res) -> generateInvoiceYear(req, res));
+        post("/generateInvoicePrice", (req, res) -> generateInvoicePrice(req, res));
+        get("/invoicesJson", (req, res) -> invoicesJson(req, res));
+        get("/invoicesYearJson", (req, res) -> invoicesYearJson(req, res));
+        get("/invoicesPriceJson", (req, res) -> invoicesPriceJson(req, res));
 
         get("/image", (req, res) -> image(req, res));
         post("/imageOperation", (req, res) -> imageOperation(req, res));
@@ -105,6 +115,41 @@ class App {
         return true;
     }
 
+    static Boolean generateInvoice(Request req, Response res) {
+        invoices.add(Invoices.generateInvoice(cars));
+        return true;
+    }
+
+    static Boolean generateInvoiceYear(Request req, Response res) {
+        invoices_year.add(Invoices.generateInvoiceByYear(2000, cars));
+        return true;
+    }
+
+    static Boolean generateInvoicePrice(Request req, Response res) {
+        Gson gson = new Gson();
+        PriceRange priceRange = gson.fromJson(req.body(), PriceRange.class);
+        invoices_price.add(Invoices.generateInvoiceByPrice(priceRange.min, priceRange.max, cars));
+        return true;
+    }
+
+    static String invoicesJson(Request req, Response res) {
+        Gson gson = new Gson();
+        res.type("application/json");
+        return gson.toJson(invoices);
+    }
+
+    static String invoicesYearJson(Request req, Response res) {
+        Gson gson = new Gson();
+        res.type("application/json");
+        return gson.toJson(invoices_year);
+    }
+
+    static String invoicesPriceJson(Request req, Response res) {
+        Gson gson = new Gson();
+        res.type("application/json");
+        return gson.toJson(invoices_price);
+    }
+
     static Boolean image(Request req, Response res) throws IOException {
         res.type("image/jpeg");
 
@@ -127,4 +172,9 @@ class App {
 
         return gson.toJson(data);
     }
+}
+
+class PriceRange {
+    Integer min;
+    Integer max;
 }

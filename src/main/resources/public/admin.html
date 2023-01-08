@@ -115,7 +115,6 @@
                         }else {
                             downloadButton.href = "/invoices?name=" + car['uuid'];
                         }
-                        downloadButton.onclick = downloadInvoice;
                         cell.appendChild(downloadButton);
                         row.appendChild(cell);
 
@@ -172,15 +171,6 @@
                 return response.status
             else
                 return await response.json() // response.json
-        }
-
-        downloadInvoice = (e) => {
-            const disabled = e.target.getAttribute('data-disabled');
-            if(disabled)
-                return;
-
-            const uuid = e.target.getAttribute('data-uuid');
-            console.log("download");
         }
 
         updateData();
