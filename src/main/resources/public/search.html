@@ -61,6 +61,15 @@
             align-items: center;
         }
 
+        table {
+            width: 100%;
+        }
+
+        table img {
+            width: 100px;
+            margin: auto;
+        }
+
         .generateCarsButton {
             width: 250px;
             height: 40px;
@@ -69,11 +78,6 @@
             color: white;
             font-size: 1rem;
             user-select: none;
-        }
-
-        table img {
-            width: 100px;
-            margin: auto;
         }
     </style>
 </head>
@@ -129,9 +133,6 @@
             fetch('json')
                 .then((response) => response.json())
                 .then((data) => {
-                    if(data != "") {
-                        document.querySelector("#carTable").style.width = "100%";
-                    }
                     const table = document.querySelector("#carTable");
                     table.innerHTML = "";
 

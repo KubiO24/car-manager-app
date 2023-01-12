@@ -112,7 +112,7 @@ public class Invoice {
             }));
             document.add(table);
 
-            Paragraph sum = new Paragraph("TOTAL: " + sumPrice, boldFont);
+            Paragraph sum = new Paragraph("TOTAL: $" + sumPrice, boldFont);
             document.add(sum);
         } catch (DocumentException e) {
             throw new RuntimeException(e);

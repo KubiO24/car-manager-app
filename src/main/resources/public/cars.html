@@ -5,6 +5,15 @@
     <link rel="stylesheet" href="styles.css">
     <title>Cars</title>
     <style>
+        .bottomSection {
+            width: 90%;
+        }
+        table {
+            width: 100%;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
         .button {
             width: 75px;
             height: 30px;
@@ -104,47 +113,54 @@
 
                     for (const car of data) {
                         const row = document.createElement("tr");
-                        for (const carKey of Object.keys(car)) {
-                            const cell = document.createElement("td");
+                        let cell, cellText;
 
-                            if(carKey === 'airbags') {
-                                for(const airbag of car[carKey]) {
-                                    const cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
-                                    cell.appendChild(cellText);
-                                    cell.appendChild(document.createElement("br"));
-                                }
-                            }else if(carKey === 'color') {
-                                cell.style.background = car[carKey];
-                            }else {
-                                const cellText = document.createTextNode(car[carKey]);
-                                cell.appendChild(cellText);
-                            }
+                        createBasicCell(car["id"], row);
 
-                            row.appendChild(cell);
+                        createBasicCell(car["uuid"], row);
+
+                        createBasicCell(car["model"], row);
+
+                        cell = document.createElement("td");
+                        for(const airbag of car['airbags']) {
+                            cellText = document.createTextNode(`${airbag['description']}: ${airbag['value']} `);
+                            cell.appendChild(cellText);
+                            cell.appendChild(document.createElement("br"));
                         }
+                        row.appendChild(cell);
 
-                        const updateCell = document.createElement("td");
+                        cell = document.createElement("td");
+                        cell.style.background = car['color'];
+                        row.appendChild(cell);
 
+                        cell = document.createElement("td");
                         const updateButton = document.createElement("button");
                         updateButton.innerText = "update car";
                         updateButton.classList.add("button", "buttonUpdate");
                         updateButton.setAttribute('data-uuid', car['uuid']);
                         updateButton.onclick = updateCar;
-                        updateCell.appendChild(updateButton);
-                        row.appendChild(updateCell);
+                        cell.appendChild(updateButton);
+                        row.appendChild(cell);
 
-                        const deleteCell = document.createElement("td");
+                        cell = document.createElement("td");
                         const deleteButton = document.createElement("button");
                         deleteButton.innerText = "delete car";
                         deleteButton.classList.add("button", "buttonDelete");
                         deleteButton.setAttribute('data-uuid', car['uuid']);
                         deleteButton.onclick = deleteCar;
-                        deleteCell.appendChild(deleteButton);
-                        row.appendChild(deleteCell);
+                        cell.appendChild(deleteButton);
+                        row.appendChild(cell);
 
                         table.appendChild(row);
                     }
                 });
+        }
+
+        createBasicCell = (text, row) => {
+            const cell = document.createElement("td");
+            const cellText = document.createTextNode(text);
+            cell.appendChild(cellText);
+            row.appendChild(cell);
         }
 
         deleteCar = async (e) => {
