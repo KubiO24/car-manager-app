@@ -9,7 +9,6 @@
             width: 90%;
         }
         table {
-            width: 100%;
             margin-left: 0;
             margin-right: 0;
         }
@@ -26,6 +25,16 @@
 
         .buttonDelete {
             background-color: #ff5d62;
+        }
+
+        table a {
+            font-size: .85rem;
+            text-decoration: none;
+        }
+
+        table a:hover {
+            color: #ff3ddd;
+            text-decoration: none;
         }
 
         #popupBackground {
@@ -111,6 +120,10 @@
                     const table = document.querySelector("#carTable");
                     table.innerHTML = "";
 
+                    if(data.length !== 0) {
+                        table.style.width = "100%";
+                    }
+
                     for (const car of data) {
                         const row = document.createElement("tr");
                         let cell, cellText;
@@ -149,6 +162,22 @@
                         deleteButton.setAttribute('data-uuid', car['uuid']);
                         deleteButton.onclick = deleteCar;
                         cell.appendChild(deleteButton);
+                        row.appendChild(cell);
+
+                        cell = document.createElement("td");
+                        const uploadButton = document.createElement("a");
+                        uploadButton.innerText = "uploader";
+                        uploadButton.onclick = () => sessionStorage.setItem('uuid_upload', car['uuid']);
+                        uploadButton.href = "upload.html";
+                        cell.appendChild(uploadButton);
+                        row.appendChild(cell);
+
+                        cell = document.createElement("td");
+                        const galleryButton = document.createElement("a");
+                        galleryButton.innerText = "gallery";
+                        uploadButton.onclick = () => sessionStorage.setItem('uuid_gallery', car['uuid']);
+                        galleryButton.href = "gallery.html";
+                        cell.appendChild(galleryButton);
                         row.appendChild(cell);
 
                         table.appendChild(row);
