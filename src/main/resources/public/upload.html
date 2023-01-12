@@ -7,6 +7,38 @@
     <style>
         .bottomSection {
             width: 90%;
+            padding-top: 50px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+
+        #dragAndDrop {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed gray;
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+        }
+
+        #dragAndDrop p {
+            color: gray;
+        }
+
+        .button {
+            width: 100%;
+            height: 50px;
+            background-color: #4cd1fa;
+            color: white;
+            font-size: 1.2rem;
+            border-radius: 0 0 20px 20px;
+            user-select: none;
         }
     </style>
 </head>
@@ -20,7 +52,11 @@
     </div>
 
     <div class="bottomSection">
-        upload
+        <div id="dragAndDrop">
+            <p id="emptyPhotoText">Drag and drop photos here</p>
+        </div>
+
+        <button class="button">save gallery images</button>
     </div>
 </div>
 
