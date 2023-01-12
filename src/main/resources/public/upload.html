@@ -15,7 +15,6 @@
             justify-content: space-evenly;
         }
 
-
         #dragAndDrop {
             width: 100%;
             height: 400px;
@@ -61,7 +60,40 @@
 </div>
 
 <script>
+    const dragAndDrop = document.querySelector("#dragAndDrop");
+    const dragAndDropText = document.querySelector("#emptyPhotoText");
 
+    document.querySelector("html").ondragover = function (e) {
+        dragAndDropText.innerHTML = "Move it inside this big box";
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    document.querySelector("html").ondragleave = function (e) {
+        dragAndDropText.innerHTML = "Drag and drop photos here";
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    dragAndDrop.ondragover = function (e) {
+        dragAndDropText.innerHTML = "Good, now drop it";
+        e.stopPropagation();
+        e.preventDefault();
+    }
+
+
+    dragAndDrop.ondragleave = function (e) {
+        dragAndDropText.innerHTML = "Drag and drop photos here";
+        e.stopPropagation();
+        e.preventDefault();
+
+    }
+
+    dragAndDrop.ondrop = function (e) {
+        console.log("drop na dokumencie html")
+        e.preventDefault();
+        e.stopPropagation();
+    }
 </script>
 </body>
 </html>
