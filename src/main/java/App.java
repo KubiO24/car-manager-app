@@ -163,7 +163,6 @@ class App {
 
     static Boolean setGalleryUuid(Request req, Response res) {
         selectedGalleryUuid = req.body();
-        System.out.println(selectedGalleryUuid);
         return true;
     }
 
@@ -239,15 +238,12 @@ class App {
 
         outputStream.write(Files.readAllBytes(Path.of("images/" + req.queryParams("id"))));
         outputStream.flush();
-        System.out.println(req.queryParams("name"));
         return true;
     }
 
     static String imageOperation(Request req, Response res) {
         Gson gson = new Gson();
         res.type("application/json");
-
-        System.out.println(req.body());
 
         ArrayList<Integer> data = new ArrayList<>();
         data.add(100);
