@@ -168,7 +168,13 @@
                         cell = document.createElement("td");
                         const uploadButton = document.createElement("a");
                         uploadButton.innerText = "uploader";
-                        uploadButton.onclick = () => sessionStorage.setItem('uuid_upload', car['uuid']);
+                        uploadButton.onclick = () => {
+                            const options = {
+                                method: "POST",
+                                body: car['uuid'],
+                            };
+                            fetch("/setGalleryUuid", options)
+                        };
                         uploadButton.href = "upload.html";
                         cell.appendChild(uploadButton);
                         row.appendChild(cell);
@@ -176,7 +182,13 @@
                         cell = document.createElement("td");
                         const galleryButton = document.createElement("a");
                         galleryButton.innerText = "gallery";
-                        uploadButton.onclick = () => sessionStorage.setItem('uuid_gallery', car['uuid']);
+                        galleryButton.onclick = () => {
+                            const options = {
+                                method: "POST",
+                                body: car['uuid'],
+                            };
+                            fetch("/setGalleryUuid", options)
+                        }
                         galleryButton.href = "gallery.html";
                         cell.appendChild(galleryButton);
                         row.appendChild(cell);

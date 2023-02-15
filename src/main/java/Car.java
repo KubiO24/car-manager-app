@@ -1,4 +1,5 @@
 import com.fasterxml.uuid.Generators;
+import com.google.gson.Gson;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
 
@@ -19,6 +20,7 @@ public class Car {
     private Integer price;
     private Integer tax;
     private Boolean invoiceGenerated;
+    private ArrayList<String> imagesList = new ArrayList<>();
 
 
     public Car(Integer id) {
@@ -159,6 +161,19 @@ public class Car {
 
     public Integer getTax() {
         return tax;
+    }
+
+    public void addImage(String imageName) {
+        imagesList.add(imageName);
+    }
+
+    public String getImages() {
+        Gson gson = new Gson();
+        return gson.toJson(imagesList);
+    }
+
+    public void deleteImage(String name) {
+        imagesList.remove(name);
     }
 
     @Override

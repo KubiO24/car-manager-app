@@ -20,12 +20,38 @@
     </div>
 
     <div class="bottomSection">
-        gallery
+        <div id="gallery"></div>
     </div>
 </div>
 
 <script>
+    fetch('getGalleryImages')
+        .then((response) => response.json())
+        .then((data) => {
+            const gallery = document.getElementById("gallery");
+            data = JSON.parse(data);
 
+            gallery.innerHTML = "";
+
+            if(data.length === 0) {
+                const p = document.createElement("p");
+                p.innerText = "Gallery is empty";
+                gallery.append(p);
+                return;
+            }
+
+            for(const imageName of data) {
+                const imageBlock = document.createElement("div");
+                imageBlock.className += "thumbnail";
+
+                const image = document.createElement("img");
+                image.alt = imageName;
+                image.src = "thumb?id=" + imageName;
+                imageBlock.append(image);
+
+                gallery.append(imageBlock);
+            }
+    });
 </script>
 </body>
 </html>

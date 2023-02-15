@@ -15,21 +15,6 @@
             justify-content: space-evenly;
         }
 
-        #dragAndDrop {
-            width: 100%;
-            height: 400px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 2px dashed gray;
-            border-bottom: none;
-            border-radius: 20px 20px 0 0;
-        }
-
-        #dragAndDrop p {
-            color: gray;
-        }
-
         .button {
             width: 100%;
             height: 50px;
@@ -55,7 +40,7 @@
             <p id="emptyPhotoText">Drag and drop photos here</p>
         </div>
 
-        <button class="button">save gallery images</button>
+        <button class="button" onclick="save()">save gallery images</button>
     </div>
 </div>
 
@@ -63,36 +48,102 @@
     const dragAndDrop = document.querySelector("#dragAndDrop");
     const dragAndDropText = document.querySelector("#emptyPhotoText");
 
+    updateImages = () => {
+        fetch('getGalleryImages')
+            .then((response) => response.json())
+            .then((data) => {
+                data = JSON.parse(data);
+
+                dragAndDrop.innerHTML = "";
+
+                if(data.length === 0) {
+                    const p = document.createElement("p");
+                    p.id = "emptyPhotoText";
+                    p.innerText = "Drag and drop photos here";
+                    dragAndDrop.append(p);
+                    return;
+                }
+
+                for(const imageName of data) {
+                    const imageBlock = document.createElement("div");
+                    imageBlock.className += "thumbnail";
+
+                    const deleteButton = document.createElement("div");
+                    deleteButton.innerText = "✕";
+                    deleteButton.onclick = () => deleteImage(imageName);
+                    imageBlock.append(deleteButton);
+
+                    const image = document.createElement("img");
+                    image.alt = imageName;
+                    image.src = "thumb?id=" + imageName;
+                    imageBlock.append(image);
+
+                    dragAndDrop.append(imageBlock);
+                }
+            });
+    }
+
+    save = () => {
+        alert("saved");
+    }
+
+    deleteImage = async (imageName) => {
+        const options = {
+            method: "POST",
+            body: imageName
+        };
+
+        let response = await fetch("/deleteImage", options)
+
+        if (!response.ok)
+            return response.status
+        else
+            updateImages();
+    }
+
+    updateImages();
+
     document.querySelector("html").ondragover = function (e) {
-        dragAndDropText.innerHTML = "Move it inside this big box";
         e.preventDefault();
         e.stopPropagation();
+        dragAndDropText.innerHTML = "Move it inside this big box";
     }
 
     document.querySelector("html").ondragleave = function (e) {
-        dragAndDropText.innerHTML = "Drag and drop photos here";
         e.preventDefault();
         e.stopPropagation();
+        dragAndDropText.innerHTML = "Drag and drop photos here";
     }
 
     dragAndDrop.ondragover = function (e) {
-        dragAndDropText.innerHTML = "Good, now drop it";
         e.stopPropagation();
         e.preventDefault();
+        dragAndDropText.innerHTML = "Good, now drop it";
     }
 
 
     dragAndDrop.ondragleave = function (e) {
-        dragAndDropText.innerHTML = "Drag and drop photos here";
         e.stopPropagation();
         e.preventDefault();
-
+        dragAndDropText.innerHTML = "Drag and drop photos here";
     }
 
     dragAndDrop.ondrop = function (e) {
-        console.log("drop na dokumencie html")
         e.preventDefault();
         e.stopPropagation();
+        dragAndDropText.innerHTML = "Drag and drop photos here";
+
+        const formData = new FormData();
+        for (const file of e.dataTransfer.files) {
+            formData.append(file.name, file);
+        }
+        const body = formData;
+        fetch("/upload", { method: "post", body })
+            .then(response => response.text())
+            .then(data => {
+                updateImages();
+            })
+            .catch(error => console.log(error))
     }
 </script>
 </body>
