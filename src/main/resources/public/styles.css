@@ -168,12 +168,10 @@ table tr:hover td {
     margin: 10px;
 }
 
-.thumbnail div {
+.thumbnail .imageButton {
     position: absolute;
     top: 10px;
     right: 10px;
-    width: 30px;
-    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -185,14 +183,81 @@ table tr:hover td {
     user-select: none;
 }
 
+.thumbnail div {
+    width: 30px;
+    height: 30px;
+}
+
+.thumbnail a {
+    font-size: .8rem;
+    width: 32px;
+    height: 32px;
+}
+
 .thumbnail img {
     width: 150px;
     height: 150px;
+    object-fit: cover;
 }
 
 #gallery {
     display: flex;
     flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------------------------------------------------------------ */
+
+#imageOperations {
+    position: absolute;
+    left: 50px;
+    top: 120px;
+    display: flex;
+    flex-direction: column;
+}
+
+#imageOperations div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#imageOperations > div {
+    width: 250px;
+    height: 40px;
+    background-color: #4cd1fa;
+    color: white;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+
+#imageOperations #flip div {
+    width: 50%;
+    height: 40px;
+}
+
+#imageOperations #flip #flipHorizontal {
+    border-right: 1px solid white;
+}
+
+#imageOperations #flip #flipVertical {
+    border-left: 1px solid white;
+}
+
+#imageDiv {
+    margin: 50px;
+    height: 700px;
+    border: 2px solid black;
+    background-size: cover;
+}
+
+#cropSelection {
+    display: none;
+    position: absolute;
+    background-color: rgba(80, 80, 255, 0.25);
+    border: 2px dashed white;
 }
 
 /* ------------------------------------------------------------------------------------------------------------------ */

@@ -70,6 +70,7 @@
 
                     const deleteButton = document.createElement("div");
                     deleteButton.innerText = "✕";
+                    deleteButton.classList.add("imageButton");
                     deleteButton.onclick = () => deleteImage(imageName);
                     imageBlock.append(deleteButton);
 

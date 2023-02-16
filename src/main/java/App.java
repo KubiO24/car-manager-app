@@ -1,12 +1,15 @@
 import static spark.Spark.*;
 
 import com.google.gson.Gson;
+import org.imgscalr.Scalr;
 import spark.Request;
 import spark.Response;
 
+import javax.imageio.ImageIO;
 import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +23,7 @@ class App {
     private static final ArrayList<Invoice> invoices_year = new ArrayList<>();
     private static final ArrayList<Invoice> invoices_price = new ArrayList<>();
     private static String selectedGalleryUuid = "";
+    private static String editingImageName = "";
 
     public static void main(String[] args) {
 //        staticFiles.location("/public");
@@ -52,7 +56,9 @@ class App {
         post("/deleteImage", (req, res) -> deleteImage(req, res));
 
         get("/image", (req, res) -> image(req, res));
+        post("/setEditingImage", (req, res) -> setEditingImage(req, res));
         post("/imageOperation", (req, res) -> imageOperation(req, res));
+        post("/imageCrop", (req, res) -> imageCrop(req, res));
     }
 
     static String add(Request req, Response res) {
@@ -234,19 +240,82 @@ class App {
     static Boolean image(Request req, Response res) throws IOException {
         res.type("image/jpeg");
 
+        editingImageName = req.queryParams("name");
+
         OutputStream outputStream = res.raw().getOutputStream();
 
-        outputStream.write(Files.readAllBytes(Path.of("images/" + req.queryParams("id"))));
+        outputStream.write(Files.readAllBytes(Path.of("images/" + req.queryParams("name"))));
         outputStream.flush();
         return true;
     }
 
-    static String imageOperation(Request req, Response res) {
-        Gson gson = new Gson();
+    static String setEditingImage(Request req, Response res) {
+        editingImageName = req.body();
+        return "ok";
+    }
+
+    static String imageOperation(Request req, Response res) throws IOException {
         res.type("application/json");
 
+        String path = "images/" + editingImageName;
+        File image = new File(path);
+        BufferedImage bufferedImage = ImageIO.read(image);
+        BufferedImage targetImage = null;
+
+        switch(req.body()) {
+            case "rotate":
+                targetImage = Scalr.rotate(bufferedImage, Scalr.Rotation.CW_90);
+                break;
+
+            case "flipHorizontal":
+                targetImage = Scalr.rotate(bufferedImage, Scalr.Rotation.FLIP_HORZ);
+                break;
+
+            case "flipVertical":
+                targetImage = Scalr.rotate(bufferedImage, Scalr.Rotation.FLIP_VERT);
+                break;
+        }
+
         ArrayList<Integer> data = new ArrayList<>();
-        data.add(100);
+
+        if(targetImage != null) {
+            ImageIO.write(targetImage, "jpg", image);
+            data.add(targetImage.getWidth());
+            data.add(targetImage.getHeight());
+        }else {
+            data.add(bufferedImage.getWidth());
+            data.add(bufferedImage.getHeight());
+        }
+
+        Gson gson = new Gson();
+        return gson.toJson(data);
+    }
+
+    static String imageCrop(Request req, Response res) throws IOException {
+        res.type("application/json");
+
+        String path = "images/" + editingImageName;
+        File image = new File(path);
+
+        BufferedImage bufferedImage = ImageIO.read(image);
+
+        Integer imageWidth = bufferedImage.getWidth();
+        Integer imageHeight = bufferedImage.getHeight();
+
+        Gson gson = new Gson();
+        CropData cropData = gson.fromJson(req.body(), CropData.class);
+        cropData.convertFromRelative(imageWidth, imageHeight);
+
+        Integer x = (int) Math.round(cropData.x);
+        Integer y = (int) Math.round(cropData.y);
+        Integer w = (int) Math.round(cropData.w);
+        Integer h = (int) Math.round(cropData.h);
+        BufferedImage targetImage = Scalr.crop(bufferedImage, x, y, w, h);
+        ImageIO.write(targetImage, "jpg", image);
+
+        ArrayList<Integer> data = new ArrayList<>();
+        data.add(targetImage.getWidth());
+        data.add(targetImage.getHeight());
 
         return gson.toJson(data);
     }
@@ -255,4 +324,15 @@ class App {
 class PriceRange {
     Integer min;
     Integer max;
+}
+
+class CropData {
+    Double x, y, w, h;
+
+    void convertFromRelative(Integer width, Integer height) {
+        x = x * width;
+        y = y * height;
+        w = w * width;
+        h = h * height;
+    }
 }

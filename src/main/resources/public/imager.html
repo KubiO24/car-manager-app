@@ -2,19 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles.css">
     <title>Images</title>
-
-    <style>
-        #imageDiv {
-            width: auto;
-            height: 1000px;
-            border: 2px solid black;
-        }
-    </style>
 </head>
 
 <body>
-    <div id="imageDiv"></div>
+<div class="container">
+    <div class="navbar">
+        <a href="/">Home Page</a>
+        <a class="selected" href="cars.html">Edit / Update Cars</a>
+        <a href="admin.html">Generate Invoice</a>
+        <a href="search.html">Search Invoices</a>
+    </div>
+
+    <div class="bottomSection">
+        <div id="imageOperations">
+            <div id="crop">crop image</div>
+            <div id="rotate">rotate image</div>
+            <div id="flip">
+                <div id="flipHorizontal">flip horizontal</div>
+                <div id="flipVertical">flip vertical</div>
+            </div>
+        </div>
+        <div id="imageDiv">
+            <div id="cropSelection"></div>
+        </div>
+    </div>
+</div>
+
 
     <script>
         const params = new Proxy(new URLSearchParams(window.location.search), {
@@ -22,29 +37,114 @@
         });
         const name = params.name;
 
-        const div = document.querySelector("#imageDiv")
-        div.style.backgroundImage = `url("/image?name=${name}&rand=${Math.random()}")`
+        const image = document.getElementById("imageDiv")
+        image.style.backgroundImage = `url("/image?name=${name}&rand=${Math.random()}")`
+
+        const cropButton = document.getElementById("crop");
+        const cropSelection = document.getElementById("cropSelection");
+        let mouseStartPosition = {x: 0, y: 0};
+
+        document.getElementById("rotate").addEventListener("click", () => {
+            action("rotate")
+                .then((data) => updateRatio(data));
+        })
+
+        document.getElementById("flipHorizontal").addEventListener("click", () => {
+            action("flipHorizontal")
+                .then((data) => updateRatio(data));
+        })
+
+        document.getElementById("flipVertical").addEventListener("click", () => {
+            action("flipVertical")
+                .then((data) => updateRatio(data));
+        })
+
+        cropButton.addEventListener("click", () => {
+            const x = mouseStartPosition.x - image.offsetLeft;
+            const y = mouseStartPosition.y - image.offsetTop;
+            const w = cropSelection.offsetWidth;
+            const h = cropSelection.offsetHeight;
+
+            const relativeX = x / image.offsetWidth;
+            const relativeY = y / image.offsetHeight;
+            const relativeW = w / image.offsetWidth;
+            const relativeH = h / image.offsetHeight;
+
+            if(relativeW === 0 || relativeH === 0) {
+                alert("Select area to crop");
+                return;
+            }
+
+            crop(relativeX, relativeY, relativeW, relativeH)
+                .then((data) => {
+                    cropSelection.style.display = "none";
+                    updateRatio(data);
+                });
+        })
+
+
+        image.addEventListener("mousedown", e => {
+            cropSelection.style.display = "none";
+            mouseStartPosition.x = e.clientX;
+            mouseStartPosition.y = e.clientY;
+
+            cropSelection.style.left = e.clientX + "px";
+            cropSelection.style.top = e.clientY + "px";
+            cropSelection.style.width = "0px";
+            cropSelection.style.height = "0px"
+
+            image.addEventListener("mousemove", mouseMove);
+        });
+
+        image.addEventListener("mouseup", () => image.removeEventListener("mousemove", mouseMove));
+
+        mouseMove = e => {
+            cropSelection.style.display = "block";
+            cropSelection.style.width = e.clientX - mouseStartPosition.x + "px";
+            cropSelection.style.height = e.clientY - mouseStartPosition.y + "px";
+        }
 
         action = async (action) => {
             const options = {
                 method: "POST",
-                body: name,
+                body: action,
             };
 
             let response = await fetch("/imageOperation", options)
 
             if (!response.ok)
-                return response.status
+                console.log(response.status);
             else
-                return await response.json() // response.json
+                return await response.json()
+        }
+
+        crop = async (x, y, w, h) => {
+            const options = {
+                method: "POST",
+                body: JSON.stringify({
+                    x: x,
+                    y: y,
+                    w: w,
+                    h: h
+                }),
+            };
+
+            let response = await fetch("/imageCrop", options)
+
+            if (!response.ok)
+                console.log(response.status);
+            else
+                return await response.json()
+        }
+
+        updateRatio = (data) => {
+            image.style.backgroundImage = `url("/image?name=${name}&rand=${Math.random()}")`
+            const aspect = image.clientHeight / data[1];
+            image.style.width = data[0] * aspect + "px";
         }
 
         action("none")
-            .then((data) => {
-                console.log(data)
-                div.style.width = "width_z_serwera"
-                div.style.width = "height_z_serwera"
-            });
+            .then((data) => updateRatio(data));
     </script>
 </body>
 </html>

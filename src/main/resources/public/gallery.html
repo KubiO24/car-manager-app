@@ -44,6 +44,13 @@
                 const imageBlock = document.createElement("div");
                 imageBlock.className += "thumbnail";
 
+                const editButton = document.createElement("a");
+                editButton.innerText = "edit";
+                editButton.classList.add("imageButton");
+                editButton.addEventListener("click", () => fetch("/setEditingImage", { method: "post", body: imageName }))
+                editButton.href = "imager.html?name=" + imageName;
+                imageBlock.append(editButton);
+
                 const image = document.createElement("img");
                 image.alt = imageName;
                 image.src = "thumb?id=" + imageName;
@@ -51,7 +58,7 @@
 
                 gallery.append(imageBlock);
             }
-    });
+        });
 </script>
 </body>
 </html>
